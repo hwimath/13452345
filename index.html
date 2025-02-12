@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>일본어 회화 학습 프로그램</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .button { padding: 10px 20px; margin: 10px 0; cursor: pointer; }
+    .option { margin: 5px 0; }
+    h1, h2 { color: #333; }
+    .expression { margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script>
+    // 300개의 일본어 표현 데이터 (각 객체: id, japanese, meaning, pronunciation, example)
+    var expressions = [
+      { id: 1, japanese: "こんにちは", meaning: "안녕하세요", pronunciation: "콘니치와", example: "예문: 「こんにちは」는 낮에 인사할 때 사용합니다." },
+      { id: 2, japanese: "おはようございます", meaning: "좋은 아침입니다", pronunciation: "오하요 고자이마스", example: "예문: 아침 인사로 사용됩니다." },
+      { id: 3, japanese: "こんばんは", meaning: "좋은 저녁입니다", pronunciation: "콘방와", example: "예문: 저녁에 만났을 때 인사합니다." },
+      { id: 4, japanese: "ありがとう", meaning: "고마워", pronunciation: "아리가토", example: "예문: 친구에게 고마울 때 사용합니다." },
+      { id: 5, japanese: "ありがとうございます", meaning: "감사합니다", pronunciation: "아리가토 고자이마스", example: "예문: 정중한 감사의 표현입니다." },
+      { id: 6, japanese: "すみません", meaning: "미안합니다/실례합니다", pronunciation: "스미센", example: "예문: 사과하거나 주의를 끌 때 사용합니다." },
+      { id: 7, japanese: "はい", meaning: "네", pronunciation: "하이", example: "예문: 긍정의 대답입니다." },
+      { id: 8, japanese: "いいえ", meaning: "아니요", pronunciation: "이이에", example: "예문: 부정의 대답입니다." },
+      { id: 9, japanese: "お願いします", meaning: "부탁합니다", pronunciation: "오네가이시마스", example: "예문: 도움을 요청할 때 사용합니다." },
+      { id: 10, japanese: "どういたしまして", meaning: "천만에요", pronunciation: "도-이타시마시테", example: "예문: 감사 인사에 대한 응답입니다." },
+
+      { id: 11, japanese: "さようなら", meaning: "안녕히 계세요/안녕", pronunciation: "사요나라", example: "예문: 작별 인사로 사용합니다." },
+      { id: 12, japanese: "じゃあね", meaning: "그럼, 또 봐", pronunciation: "짜-네", example: "예문: 캐주얼한 작별 인사입니다." },
+      { id: 13, japanese: "お元気ですか？", meaning: "잘 지내세요?", pronunciation: "오겐키데스카", example: "예문: 안부를 물을 때 사용합니다." },
+      { id: 14, japanese: "元気です", meaning: "잘 지내요", pronunciation: "겐키데스", example: "예문: 안부에 대한 긍정적인 대답입니다." },
+      { id: 15, japanese: "久しぶりですね", meaning: "오랜만입니다", pronunciation: "히사시부리데스네", example: "예문: 오랜만에 만난 사람에게 사용합니다." },
+      { id: 16, japanese: "よろしくお願いします", meaning: "잘 부탁드립니다", pronunciation: "요로시쿠 오네가이시마스", example: "예문: 인사말이나 부탁할 때 사용합니다." },
+      { id: 17, japanese: "すごい", meaning: "대단해", pronunciation: "스고이", example: "예문: 감탄할 때 사용합니다." },
+      { id: 18, japanese: "本当ですか？", meaning: "정말인가요?", pronunciation: "혼토데스카", example: "예문: 놀람이나 의심을 표현할 때 사용합니다." },
+      { id: 19, japanese: "本当です", meaning: "정말입니다", pronunciation: "혼토데스", example: "예문: 사실을 확인할 때 사용합니다." },
+      { id: 20, japanese: "もちろん", meaning: "물론이죠", pronunciation: "모치론", example: "예문: 당연함을 나타낼 때 사용합니다." },
+
+      { id: 21, japanese: "いいですね", meaning: "좋네요", pronunciation: "이이데스네", example: "예문: 긍정적인 반응을 나타냅니다." },
+      { id: 22, japanese: "大丈夫ですか？", meaning: "괜찮으세요?", pronunciation: "다이죠부데스카", example: "예문: 상대방의 상태를 걱정할 때 사용합니다." },
+      { id: 23, japanese: "大丈夫です", meaning: "괜찮습니다", pronunciation: "다이죠부데스", example: "예문: 안심시키기 위한 표현입니다." },
+      { id: 24, japanese: "どうしましたか？", meaning: "무슨 일이에요?", pronunciation: "도-시마시타카", example: "예문: 문제 발생 시 사용합니다." },
+      { id: 25, japanese: "お久しぶりです", meaning: "오랜만이에요", pronunciation: "오히사시부리데스", example: "예문: 오랜만에 만난 사람에게 사용합니다." },
+      { id: 26, japanese: "失礼します", meaning: "실례하겠습니다", pronunciation: "시츠레이시마스", example: "예문: 들어가거나 자리를 뜰 때 사용합니다." },
+      { id: 27, japanese: "お先に失礼します", meaning: "먼저 실례하겠습니다", pronunciation: "오사키니 시츠레이시마스", example: "예문: 회의나 모임에서 먼저 떠날 때 사용합니다." },
+      { id: 28, japanese: "お疲れ様です", meaning: "수고하셨습니다", pronunciation: "오츠카레사마데스", example: "예문: 업무 후 동료에게 인사합니다." },
+      { id: 29, japanese: "頑張ってください", meaning: "힘내세요", pronunciation: "간뱃테 쿠다사이", example: "예문: 격려할 때 사용합니다." },
+      { id: 30, japanese: "おめでとうございます", meaning: "축하합니다", pronunciation: "오메데토 고자이마스", example: "예문: 축하할 때 사용합니다." },
+
+      { id: 31, japanese: "何ですか？", meaning: "무엇입니까?", pronunciation: "난데스카", example: "예문: 질문할 때 사용합니다." },
+      { id: 32, japanese: "分かりました", meaning: "알겠습니다", pronunciation: "와카리마시타", example: "예문: 이해했음을 표현합니다." },
+      { id: 33, japanese: "分かりません", meaning: "모르겠습니다", pronunciation: "와카리마센", example: "예문: 이해하지 못했을 때 사용합니다." },
+      { id: 34, japanese: "もう一度お願いします", meaning: "한 번 더 부탁합니다", pronunciation: "모-이치도 오네가이시마스", example: "예문: 다시 요청할 때 사용합니다." },
+      { id: 35, japanese: "ゆっくり話してください", meaning: "천천히 말해주세요", pronunciation: "윳쿠리 하나시테 쿠다사이", example: "예문: 대화 속도를 조절할 때 사용합니다." },
+      { id: 36, japanese: "英語を話せますか？", meaning: "영어를 할 수 있습니까?", pronunciation: "에이고 오 하나세마스카", example: "예문: 언어 능력을 물어볼 때 사용합니다." },
+      { id: 37, japanese: "日本語を話せますか？", meaning: "일본어를 할 수 있습니까?", pronunciation: "니혼고 오 하나세마스카", example: "예문: 일본어 능력을 물어볼 때 사용합니다." },
+      { id: 38, japanese: "ちょっと待ってください", meaning: "잠시만 기다려주세요", pronunciation: "촛토 맛떼 쿠다사이", example: "예문: 잠시 기다림을 요청할 때 사용합니다." },
+      { id: 39, japanese: "どこですか？", meaning: "어디입니까?", pronunciation: "도코데스카", example: "예문: 위치를 물어볼 때 사용합니다." },
+      { id: 40, japanese: "ここです", meaning: "여기입니다", pronunciation: "코코데스", example: "예문: 위치 안내 시 사용합니다." },
+
+      { id: 41, japanese: "あそこです", meaning: "저기입니다", pronunciation: "아소코데스", example: "예문: 멀리 있는 장소를 지칭할 때 사용합니다." },
+      { id: 42, japanese: "トイレはどこですか？", meaning: "화장실은 어디입니까?", pronunciation: "토이레와 도코데스카", example: "예문: 화장실 위치를 물어볼 때 사용합니다." },
+      { id: 43, japanese: "いくらですか？", meaning: "얼마입니까?", pronunciation: "이쿠라데스카", example: "예문: 가격을 물어볼 때 사용합니다." },
+      { id: 44, japanese: "これをください", meaning: "이거 주세요", pronunciation: "코레 오 쿠다사이", example: "예문: 물건을 주문할 때 사용합니다." },
+      { id: 45, japanese: "それをください", meaning: "그것 주세요", pronunciation: "소레 오 쿠다사이", example: "예문: 물건 선택 시 사용합니다." },
+      { id: 46, japanese: "はい、どうぞ", meaning: "네, 여기요", pronunciation: "하이, 도-조", example: "예문: 물건을 건넬 때 사용합니다." },
+      { id: 47, japanese: "お会計お願いします", meaning: "계산서 주세요", pronunciation: "오카이케이 오네가이시마스", example: "예문: 계산 시 사용합니다." },
+      { id: 48, japanese: "美味しいです", meaning: "맛있습니다", pronunciation: "오이시이데스", example: "예문: 음식을 칭찬할 때 사용합니다." },
+      { id: 49, japanese: "大好きです", meaning: "아주 좋아합니다", pronunciation: "다이스키데스", example: "예문: 사랑이나 취향을 표현할 때 사용합니다." },
+      { id: 50, japanese: "好きです", meaning: "좋아합니다", pronunciation: "스키데스", example: "예문: 감정을 표현할 때 사용합니다." },
+
+      { id: 51, japanese: "すみません、遅れました", meaning: "죄송합니다, 늦었습니다", pronunciation: "스미센, 오쿠레마시타", example: "예문: 지각에 대해 사과할 때 사용합니다." },
+      { id: 52, japanese: "お待たせしました", meaning: "기다리게 해서 죄송합니다", pronunciation: "오마타세시마시타", example: "예문: 기다리게 한 후 사과할 때 사용합니다." },
+      { id: 53, japanese: "頑張ります", meaning: "열심히 하겠습니다", pronunciation: "간뱃리마스", example: "예문: 의지를 표현할 때 사용합니다." },
+      { id: 54, japanese: "ちょっと", meaning: "잠깐, 조금", pronunciation: "촛토", example: "예문: 시간을 조금 요청할 때 사용합니다." },
+      { id: 55, japanese: "多分", meaning: "아마", pronunciation: "타분", example: "예문: 가능성을 말할 때 사용합니다." },
+      { id: 56, japanese: "本当に", meaning: "정말로", pronunciation: "혼토니", example: "예문: 진심을 표현할 때 사용합니다." },
+      { id: 57, japanese: "すばらしい", meaning: "훌륭합니다", pronunciation: "스바라시이", example: "예문: 감탄을 표현할 때 사용합니다." },
+      { id: 58, japanese: "もちろんです", meaning: "당연합니다", pronunciation: "모치론데스", example: "예문: 확신을 표현할 때 사용합니다." },
+      { id: 59, japanese: "お疲れ様でした", meaning: "수고하셨습니다", pronunciation: "오츠카레사마데시타", example: "예문: 업무 후 인사할 때 사용합니다." },
+      { id: 60, japanese: "もういいです", meaning: "그만하겠습니다", pronunciation: "모-이 이이데스", example: "예문: 상황을 마무리할 때 사용합니다." },
+
+      { id: 61, japanese: "残念です", meaning: "안타깝습니다", pronunciation: "잔넨데스", example: "예문: 실망을 표현할 때 사용합니다." },
+      { id: 62, japanese: "よかったですね", meaning: "다행입니다", pronunciation: "요캇타데스네", example: "예문: 안심할 때 사용합니다." },
+      { id: 63, japanese: "気をつけて", meaning: "조심하세요", pronunciation: "키 오 츠케테", example: "예문: 안전을 기원할 때 사용합니다." },
+      { id: 64, japanese: "お大事に", meaning: "몸 조심하세요", pronunciation: "오다이지니", example: "예문: 아플 때 위로할 때 사용합니다." },
+      { id: 65, japanese: "また会いましょう", meaning: "또 만나요", pronunciation: "마타 아이마쇼-", example: "예문: 재회를 약속할 때 사용합니다." },
+      { id: 66, japanese: "また明日", meaning: "내일 또 만나요", pronunciation: "마타 아시타", example: "예문: 헤어질 때 내일을 약속합니다." },
+      { id: 67, japanese: "ご無沙汰しています", meaning: "오랜만입니다", pronunciation: "고부사타 시테이마스", example: "예문: 오랜만에 연락할 때 사용합니다." },
+      { id: 68, japanese: "本当にありがとう", meaning: "진심으로 감사합니다", pronunciation: "혼토니 아리가토", example: "예문: 깊은 감사를 표현할 때 사용합니다." },
+      { id: 69, japanese: "すごくいい", meaning: "아주 좋아요", pronunciation: "스고쿠 이이", example: "예문: 강한 호감을 표현할 때 사용합니다." },
+      { id: 70, japanese: "うれしいです", meaning: "기쁩니다", pronunciation: "우레시이데스", example: "예문: 기쁨을 표현할 때 사용합니다." },
+
+      { id: 71, japanese: "悲しいです", meaning: "슬픕니다", pronunciation: "카나시이데스", example: "예문: 슬픔을 표현할 때 사용합니다." },
+      { id: 72, japanese: "分かりましたか？", meaning: "이해하셨습니까?", pronunciation: "와카리마시타카", example: "예문: 확인할 때 사용합니다." },
+      { id: 73, japanese: "もちろん、分かります", meaning: "물론, 이해합니다", pronunciation: "모치론, 와카리마스", example: "예문: 긍정적으로 답할 때 사용합니다." },
+      { id: 74, japanese: "なんでもない", meaning: "아무것도 아닙니다", pronunciation: "난뎀모 나이", example: "예문: 걱정할 필요 없을 때 사용합니다." },
+      { id: 75, japanese: "どちらですか？", meaning: "어느 쪽입니까?", pronunciation: "도치라데스카", example: "예문: 선택을 물어볼 때 사용합니다." },
+      { id: 76, japanese: "どっちでもいいです", meaning: "어느 쪽이든 상관없습니다", pronunciation: "돗치 데모 이이데스", example: "예문: 선택에 구애받지 않을 때 사용합니다." },
+      { id: 77, japanese: "何時ですか？", meaning: "몇 시입니까?", pronunciation: "난지데스카", example: "예문: 시간을 물어볼 때 사용합니다." },
+      { id: 78, japanese: "今、何時ですか？", meaning: "지금 몇 시입니까?", pronunciation: "이마, 난지데스카", example: "예문: 현재 시간을 물어볼 때 사용합니다." },
+      { id: 79, japanese: "おいしいですね", meaning: "맛있네요", pronunciation: "오이시이데스네", example: "예문: 음식 칭찬 시 사용합니다." },
+      { id: 80, japanese: "いいえ、結構です", meaning: "아니요, 괜찮습니다", pronunciation: "이이에, 켓코-데스", example: "예문: 제안을 거절할 때 사용합니다." },
+
+      { id: 81, japanese: "どうして？", meaning: "왜요?", pronunciation: "도-시떼", example: "예문: 이유를 물어볼 때 사용합니다." },
+      { id: 82, japanese: "それは何ですか？", meaning: "그것은 무엇입니까?", pronunciation: "소레와 난데스카", example: "예문: 사물을 물어볼 때 사용합니다." },
+      { id: 83, japanese: "そうですか", meaning: "그렇습니까?", pronunciation: "소-데스카", example: "예문: 상대의 말을 확인할 때 사용합니다." },
+      { id: 84, japanese: "違います", meaning: "틀립니다", pronunciation: "치가이마스", example: "예문: 정정할 때 사용합니다." },
+      { id: 85, japanese: "その通りです", meaning: "바로 그렇습니다", pronunciation: "소노 토-오리데스", example: "예문: 동의할 때 사용합니다." },
+      { id: 86, japanese: "すごいですね", meaning: "대단하시네요", pronunciation: "스고이데스네", example: "예문: 감탄을 표현할 때 사용합니다." },
+      { id: 87, japanese: "おめでとう！", meaning: "축하해!", pronunciation: "오메데토", example: "예문: 기쁜 소식을 축하할 때 사용합니다." },
+      { id: 88, japanese: "がんばってね", meaning: "힘내!", pronunciation: "간뱃테 네", example: "예문: 응원할 때 사용합니다." },
+      { id: 89, japanese: "気をつけてください", meaning: "조심해 주세요", pronunciation: "키 오 츠케테 쿠다사이", example: "예문: 안전을 당부할 때 사용합니다." },
+      { id: 90, japanese: "楽しんでください", meaning: "즐기세요", pronunciation: "타노신데 쿠다사이", example: "예문: 즐거움을 기원할 때 사용합니다." },
+
+      { id: 91, japanese: "もう一度言ってください", meaning: "한 번 더 말해 주세요", pronunciation: "모-이치도 잇떼 쿠다사이", example: "예문: 반복 요청 시 사용합니다." },
+      { id: 92, japanese: "すみません、もう一度", meaning: "죄송합니다, 한 번 더", pronunciation: "스미센, 모-이치도", example: "예문: 다시 요청할 때 사용합니다." },
+      { id: 93, japanese: "聞こえますか？", meaning: "들리십니까?", pronunciation: "키코에마스카", example: "예문: 소리를 확인할 때 사용합니다." },
+      { id: 94, japanese: "聞こえません", meaning: "들리지 않습니다", pronunciation: "키코에마센", example: "예문: 소리가 들리지 않을 때 사용합니다." },
+      { id: 95, japanese: "少し分かります", meaning: "조금 이해합니다", pronunciation: "스코시 와카리마스", example: "예문: 부분적으로 이해했을 때 사용합니다." },
+      { id: 96, japanese: "全然分かりません", meaning: "전혀 이해하지 못합니다", pronunciation: "젠젠 와카리마센", example: "예문: 전혀 이해하지 못했을 때 사용합니다." },
+      { id: 97, japanese: "ちょっと待ってくださいね", meaning: "잠깐만 기다려 주세요", pronunciation: "촛토 맛떼 쿠다사이 네", example: "예문: 추가 기다림을 요청할 때 사용합니다." },
+      { id: 98, japanese: "何をしていますか？", meaning: "무엇을 하고 있습니까?", pronunciation: "나니 오 시테이마스카", example: "예문: 현재 상황을 물어볼 때 사용합니다." },
+      { id: 99, japanese: "仕事です", meaning: "일입니다", pronunciation: "시고토데스", example: "예문: 직업이나 일을 말할 때 사용합니다." },
+      { id: 100, japanese: "勉強しています", meaning: "공부하고 있습니다", pronunciation: "벤쿄- 시테이마스", example: "예문: 학습 중임을 표현할 때 사용합니다." },
+
+      { id: 101, japanese: "どこに住んでいますか？", meaning: "어디에 살고 있습니까?", pronunciation: "도코니 순데이마스카", example: "예문: 거주지를 물어볼 때 사용합니다." },
+      { id: 102, japanese: "東京です", meaning: "도쿄입니다", pronunciation: "토-쿄우데스", example: "예문: 도시를 대답할 때 사용합니다." },
+      { id: 103, japanese: "日本が大好きです", meaning: "일본을 아주 좋아합니다", pronunciation: "니혼가 다이스키데스", example: "예문: 일본에 대한 애정을 표현할 때 사용합니다." },
+      { id: 104, japanese: "旅行が好きです", meaning: "여행을 좋아합니다", pronunciation: "료코-가 스키데스", example: "예문: 취미를 표현할 때 사용합니다." },
+      { id: 105, japanese: "お誕生日おめでとう", meaning: "생일 축하합니다", pronunciation: "오탄죠비 오메데토", example: "예문: 생일 축하할 때 사용합니다." },
+      { id: 106, japanese: "お元気で", meaning: "건강하세요", pronunciation: "오겐키데", example: "예문: 헤어질 때 인사로 사용합니다." },
+      { id: 107, japanese: "気分がいいです", meaning: "기분이 좋습니다", pronunciation: "키분가 이이데스", example: "예문: 상태가 좋음을 표현할 때 사용합니다." },
+      { id: 108, japanese: "寒いですね", meaning: "춥네요", pronunciation: "사무이데스네", example: "예문: 날씨를 표현할 때 사용합니다." },
+      { id: 109, japanese: "暑いですね", meaning: "덥네요", pronunciation: "아츠이데스네", example: "예문: 더위를 표현할 때 사용합니다." },
+      { id: 110, japanese: "涼しいですね", meaning: "시원하네요", pronunciation: "스즈시이데스네", example: "예문: 시원함을 표현할 때 사용합니다." },
+
+      { id: 111, japanese: "難しいです", meaning: "어렵습니다", pronunciation: "무즈카시이데스", example: "예문: 난이도를 표현할 때 사용합니다." },
+      { id: 112, japanese: "簡単です", meaning: "간단합니다", pronunciation: "칸탄데스", example: "예문: 쉬운 일을 표현할 때 사용합니다." },
+      { id: 113, japanese: "忙しいです", meaning: "바쁩니다", pronunciation: "이소가시이데스", example: "예문: 일정이 많음을 표현할 때 사용합니다." },
+      { id: 114, japanese: "暇です", meaning: "한가합니다", pronunciation: "히마데스", example: "예문: 시간이 여유로울 때 사용합니다." },
+      { id: 115, japanese: "疲れました", meaning: "피곤합니다", pronunciation: "츠카레마시타", example: "예문: 피로를 표현할 때 사용합니다." },
+      { id: 116, japanese: "元気を出して", meaning: "힘내세요", pronunciation: "겐키 오 데시테", example: "예문: 위로할 때 사용합니다." },
+      { id: 117, japanese: "気にしないで", meaning: "신경 쓰지 마세요", pronunciation: "키 니 시나이데", example: "예문: 걱정을 덜어줄 때 사용합니다." },
+      { id: 118, japanese: "どうぞお入りください", meaning: "들어오세요", pronunciation: "도-조 오하이리 쿠다사이", example: "예문: 초대할 때 사용합니다." },
+      { id: 119, japanese: "お先にどうぞ", meaning: "먼저 가세요", pronunciation: "오사키니 도-조", example: "예문: 먼저 진행할 때 사용합니다." },
+      { id: 120, japanese: "もう少しで終わります", meaning: "조금만 더 하면 끝납니다", pronunciation: "모-우스코시데 오와리마스", example: "예문: 마무리 상황을 표현할 때 사용합니다." },
+
+      { id: 121, japanese: "何か飲みますか？", meaning: "뭐 마실래요?", pronunciation: "나니카 노미마스카", example: "예문: 음료 선택 시 사용합니다." },
+      { id: 122, japanese: "水をください", meaning: "물 주세요", pronunciation: "미즈 오 쿠다사이", example: "예문: 주문 시 사용합니다." },
+      { id: 123, japanese: "お茶をください", meaning: "차 주세요", pronunciation: "오차 오 쿠다사이", example: "예문: 음료 주문 시 사용합니다." },
+      { id: 124, japanese: "コーヒーをください", meaning: "커피 주세요", pronunciation: "코-히- 오 쿠다사이", example: "예문: 카페에서 주문할 때 사용합니다." },
+      { id: 125, japanese: "ビールをください", meaning: "맥주 주세요", pronunciation: "비-루 오 쿠다사이", example: "예문: 음료 주문 시 사용합니다." },
+      { id: 126, japanese: "おいしい料理です", meaning: "맛있는 요리입니다", pronunciation: "오이시이 료-리데스", example: "예문: 요리를 칭찬할 때 사용합니다." },
+      { id: 127, japanese: "いただきます", meaning: "잘 먹겠습니다", pronunciation: "이타다키마스", example: "예문: 식사 전에 사용하는 인사말입니다." },
+      { id: 128, japanese: "ごちそうさまでした", meaning: "잘 먹었습니다", pronunciation: "고치소-사마데시타", example: "예문: 식사 후 인사말로 사용합니다." },
+      { id: 129, japanese: "メニューをください", meaning: "메뉴 주세요", pronunciation: "메뉴 오 쿠다사이", example: "예문: 음식점에서 주문 전 사용합니다." },
+      { id: 130, japanese: "おすすめは何ですか？", meaning: "추천 메뉴는 무엇입니까?", pronunciation: "오스스메와 난데스카", example: "예문: 추천을 요청할 때 사용합니다." },
+
+      { id: 131, japanese: "ちょっと辛いです", meaning: "약간 매워요", pronunciation: "촛토 카라이데스", example: "예문: 음식의 맛을 표현할 때 사용합니다." },
+      { id: 132, japanese: "甘すぎます", meaning: "너무 달아요", pronunciation: "아마스기마스", example: "예문: 음식의 맛을 설명할 때 사용합니다." },
+      { id: 133, japanese: "美味しくないです", meaning: "맛없습니다", pronunciation: "오이시키나이데스", example: "예문: 음식이 기대에 못 미칠 때 사용합니다." },
+      { id: 134, japanese: "美味しくて幸せです", meaning: "맛있어서 행복합니다", pronunciation: "오이시키쿠테 시아와세데스", example: "예문: 음식에 감탄할 때 사용합니다." },
+      { id: 135, japanese: "お腹がすきました", meaning: "배고픕니다", pronunciation: "오나카가 스키마시타", example: "예문: 배고픔을 표현할 때 사용합니다." },
+      { id: 136, japanese: "満腹です", meaning: "배불러요", pronunciation: "만푸쿠데스", example: "예문: 식사 후 만족감을 표현할 때 사용합니다." },
+      { id: 137, japanese: "お水を足してください", meaning: "물을 좀 더 주세요", pronunciation: "오미즈 오 타시테 쿠다사이", example: "예문: 추가 주문 시 사용합니다." },
+      { id: 138, japanese: "少しだけ", meaning: "조금만", pronunciation: "스코시다케", example: "예문: 양을 제한할 때 사용합니다." },
+      { id: 139, japanese: "もっとください", meaning: "더 주세요", pronunciation: "못토 쿠다사이", example: "예문: 추가 주문 시 사용합니다." },
+      { id: 140, japanese: "これで大丈夫です", meaning: "이걸로 괜찮습니다", pronunciation: "코레데 다이죠부데스", example: "예문: 선택에 만족할 때 사용합니다." },
+
+      { id: 141, japanese: "お邪魔します", meaning: "실례하겠습니다", pronunciation: "오자마시마스", example: "예문: 남의 집에 들어갈 때 예의를 갖추며 사용합니다." },
+      { id: 142, japanese: "どうぞお召し上がりください", meaning: "맛있게 드세요", pronunciation: "도-조 오메시아가리 쿠다사이", example: "예문: 음식을 권할 때 사용합니다." },
+      { id: 143, japanese: "何時に会いましょうか？", meaning: "몇 시에 만날까요?", pronunciation: "난지니 아이마쇼-카", example: "예문: 약속 시간을 정할 때 사용합니다." },
+      { id: 144, japanese: "午後です", meaning: "오후입니다", pronunciation: "고고데스", example: "예문: 시간을 대답할 때 사용합니다." },
+      { id: 145, japanese: "午前です", meaning: "오전입니다", pronunciation: "고젠데스", example: "예문: 시간을 대답할 때 사용합니다." },
+      { id: 146, japanese: "明日、行きましょう", meaning: "내일 갑시다", pronunciation: "아시타, 이키마쇼-", example: "예문: 약속을 제안할 때 사용합니다." },
+      { id: 147, japanese: "今日は何曜日ですか？", meaning: "오늘 무슨 요일입니까?", pronunciation: "쿄-와 난요-비데스카", example: "예문: 요일을 물어볼 때 사용합니다." },
+      { id: 148, japanese: "月曜日です", meaning: "월요일입니다", pronunciation: "게츠요-비데스", example: "예문: 요일을 대답할 때 사용합니다." },
+      { id: 149, japanese: "火曜日です", meaning: "화요일입니다", pronunciation: "카요-비데스", example: "예문: 요일을 대답할 때 사용합니다." },
+      { id: 150, japanese: "水曜日です", meaning: "수요일입니다", pronunciation: "스이요-비데스", example: "예문: 요일을 대답할 때 사용합니다." },
+
+      { id: 151, japanese: "木曜日です", meaning: "목요일입니다", pronunciation: "모쿠요-비데스", example: "예문: 요일을 대답할 때 사용합니다." },
+      { id: 152, japanese: "金曜日です", meaning: "금요일입니다", pronunciation: "킨요-비데스", example: "예문: 요일을 대답할 때 사용합니다." },
+      { id: 153, japanese: "土曜日です", meaning: "토요일입니다", pronunciation: "도요-비데스", example: "예문: 요일을 대답할 때 사용합니다." },
+      { id: 154, japanese: "日曜日です", meaning: "일요일입니다", pronunciation: "니치요-비데스", example: "예문: 요일을 대답할 때 사용합니다." },
+      { id: 155, japanese: "今日です", meaning: "오늘입니다", pronunciation: "쿄-데스", example: "예문: 날짜를 대답할 때 사용합니다." },
+      { id: 156, japanese: "昨日です", meaning: "어제입니다", pronunciation: "키노-데스", example: "예문: 날짜를 대답할 때 사용합니다." },
+      { id: 157, japanese: "明日です", meaning: "내일입니다", pronunciation: "아시타데스", example: "예문: 날짜를 대답할 때 사용합니다." },
+      { id: 158, japanese: "週末に会いましょう", meaning: "주말에 만나요", pronunciation: "슈마츠니 아이마쇼-", example: "예문: 만남을 제안할 때 사용합니다." },
+      { id: 159, japanese: "来週、どうですか？", meaning: "다음 주는 어떠세요?", pronunciation: "라이슈우, 도-데스카", example: "예문: 약속을 제안할 때 사용합니다." },
+      { id: 160, japanese: "今週は忙しいです", meaning: "이번 주는 바쁩니다", pronunciation: "콘슈우와 이소가시이데스", example: "예문: 일정이 많음을 표현할 때 사용합니다." },
+
+      { id: 161, japanese: "今、何をしていますか？", meaning: "지금 뭐 하고 있습니까?", pronunciation: "이마, 나니 오 시테이마스카", example: "예문: 현재 상태를 물어볼 때 사용합니다." },
+      { id: 162, japanese: "宿題をしています", meaning: "숙제를 하고 있습니다", pronunciation: "슈쿠다이 오 시테이마스", example: "예문: 공부 중임을 표현할 때 사용합니다." },
+      { id: 163, japanese: "電話をかけます", meaning: "전화를 겁니다", pronunciation: "덴와 오 카케마스", example: "예문: 전화를 할 때 사용합니다." },
+      { id: 164, japanese: "メールを送ります", meaning: "메일을 보냅니다", pronunciation: "메-루 오 오쿠리마스", example: "예문: 메일을 보낼 때 사용합니다." },
+      { id: 165, japanese: "すぐに行きます", meaning: "곧 가겠습니다", pronunciation: "스구니 이키마스", example: "예문: 즉시 행동을 표현할 때 사용합니다." },
+      { id: 166, japanese: "後で連絡します", meaning: "나중에 연락하겠습니다", pronunciation: "아토데 렌라쿠 시마스", example: "예문: 후속 연락을 약속할 때 사용합니다." },
+      { id: 167, japanese: "連絡してください", meaning: "연락해주세요", pronunciation: "렌라쿠 시테 쿠다사이", example: "예문: 연락을 요청할 때 사용합니다." },
+      { id: 168, japanese: "見せてください", meaning: "보여주세요", pronunciation: "미세테 쿠다사이", example: "예문: 무언가를 보여달라고 할 때 사용합니다." },
+      { id: 169, japanese: "写真を撮ってもいいですか？", meaning: "사진 찍어도 될까요?", pronunciation: "샤신 오 톳떼모 이이데스카", example: "예문: 허락을 구할 때 사용합니다." },
+      { id: 170, japanese: "撮ってください", meaning: "찍어주세요", pronunciation: "톳떼 쿠다사이", example: "예문: 사진 촬영을 요청할 때 사용합니다." },
+
+      { id: 171, japanese: "どうやって行きますか？", meaning: "어떻게 가나요?", pronunciation: "도-야떼 이키마스카", example: "예문: 길 안내를 요청할 때 사용합니다." },
+      { id: 172, japanese: "この道をまっすぐ行ってください", meaning: "이 길을 직진하세요", pronunciation: "코노 미치 오 맛스구 이떼 쿠다사이", example: "예문: 길 안내 시 사용합니다." },
+      { id: 173, japanese: "右に曲がってください", meaning: "오른쪽으로 도세요", pronunciation: "미기 니 마가떼 쿠다사이", example: "예문: 방향 안내 시 사용합니다." },
+      { id: 174, japanese: "左に曲がってください", meaning: "왼쪽으로 도세요", pronunciation: "히다리 니 마가떼 쿠다사이", example: "예문: 방향 안내 시 사용합니다." },
+      { id: 175, japanese: "ここを右に行ってください", meaning: "여기서 오른쪽으로 가세요", pronunciation: "코코 오 미기 니 이떼 쿠다사이", example: "예문: 특정 지점에서 방향 안내 시 사용합니다." },
+      { id: 176, japanese: "ここを左に行ってください", meaning: "여기서 왼쪽으로 가세요", pronunciation: "코코 오 히다리 니 이떼 쿠다사이", example: "예문: 특정 지점에서 방향 안내 시 사용합니다." },
+      { id: 177, japanese: "まっすぐ行ってください", meaning: "직진하세요", pronunciation: "맛스구 이떼 쿠다사이", example: "예문: 길 안내 시 사용합니다." },
+      { id: 178, japanese: "どこで降りますか？", meaning: "어디에서 내리십니까?", pronunciation: "도코데 오리마스카", example: "예문: 하차 위치를 물어볼 때 사용합니다." },
+      { id: 179, japanese: "次の駅で降ります", meaning: "다음 역에서 내립니다", pronunciation: "츠기노 에키데 오리마스", example: "예문: 하차 장소를 설명할 때 사용합니다." },
+      { id: 180, japanese: "乗り換えはどこですか？", meaning: "환승은 어디입니까?", pronunciation: "노리카에와 도코데스카", example: "예문: 환승 위치를 물어볼 때 사용합니다." },
+
+      { id: 181, japanese: "電車は遅れています", meaning: "전철이 지연되고 있습니다", pronunciation: "덴샤와 오쿠레테이마스", example: "예문: 지연 상황을 설명할 때 사용합니다." },
+      { id: 182, japanese: "この電車は何行きですか？", meaning: "이 전철은 어느 방향으로 갑니까?", pronunciation: "코노 덴샤와 난이키데스카", example: "예문: 전철의 목적지를 물어볼 때 사용합니다." },
+      { id: 183, japanese: "降りる準備をしてください", meaning: "내릴 준비를 해주세요", pronunciation: "오리루 준비 오 시테 쿠다사이", example: "예문: 하차 준비를 요청할 때 사용합니다." },
+      { id: 184, japanese: "すみません、道に迷いました", meaning: "죄송합니다, 길을 잃었습니다", pronunciation: "스미센, 미치니 마요이마시타", example: "예문: 길을 잃었을 때 사용합니다." },
+      { id: 185, japanese: "助けてください", meaning: "도와주세요", pronunciation: "타스켓테 쿠다사이", example: "예문: 긴급 상황에서 도움을 요청할 때 사용합니다." },
+      { id: 186, japanese: "警察を呼んでください", meaning: "경찰을 불러주세요", pronunciation: "케이사츠 오 욘데 쿠다사이", example: "예문: 위급 상황에서 경찰에 연락할 때 사용합니다." },
+      { id: 187, japanese: "火事です", meaning: "화재입니다", pronunciation: "카지데스", example: "예문: 화재 발생 시 사용합니다." },
+      { id: 188, japanese: "病院に行ってください", meaning: "병원에 가주세요", pronunciation: "비욘 인 이떼 쿠다사이", example: "예문: 의료 지원이 필요할 때 사용합니다." },
+      { id: 189, japanese: "大変です", meaning: "큰일입니다", pronunciation: "타이헨데스", example: "예문: 어려운 상황을 표현할 때 사용합니다." },
+      { id: 190, japanese: "落ち着いてください", meaning: "침착하세요", pronunciation: "오치츠케테 쿠다사이", example: "예문: 상황 진정 시 사용합니다." },
+
+      { id: 191, japanese: "わかりません、もう一度言ってください", meaning: "이해하지 못했습니다, 다시 말씀해주세요", pronunciation: "와카리마센, 모-이치도 잇떼 쿠다사이", example: "예문: 이해하지 못했을 때 재요청합니다." },
+      { id: 192, japanese: "ゆっくりお願いします", meaning: "천천히 부탁합니다", pronunciation: "윳쿠리 오네가이시마스", example: "예문: 말하는 속도를 낮춰 달라고 할 때 사용합니다." },
+      { id: 193, japanese: "はっきり言ってください", meaning: "분명히 말해주세요", pronunciation: "핫키리 잇떼 쿠다사이", example: "예문: 명확한 설명을 요청할 때 사용합니다." },
+      { id: 194, japanese: "少し待ってください", meaning: "잠깐 기다려주세요", pronunciation: "스코시 맛떼 쿠다사이", example: "예문: 잠시 기다림을 요청할 때 사용합니다." },
+      { id: 195, japanese: "ちょっと考えさせてください", meaning: "잠깐 생각하게 해주세요", pronunciation: "촛토 칸가에사세테 쿠다사이", example: "예문: 결정을 미룰 때 사용합니다." },
+      { id: 196, japanese: "どう思いますか？", meaning: "어떻게 생각합니까?", pronunciation: "도- 오모이마스카", example: "예문: 의견을 물어볼 때 사용합니다." },
+      { id: 197, japanese: "私はそう思いません", meaning: "저는 그렇게 생각하지 않습니다", pronunciation: "와타시와 소- 오모이마센", example: "예문: 의견 차이를 표현할 때 사용합니다." },
+      { id: 198, japanese: "それはいい考えですね", meaning: "좋은 생각이네요", pronunciation: "소레와 이이 칸가데스네", example: "예문: 동의하며 칭찬할 때 사용합니다." },
+      { id: 199, japanese: "賛成です", meaning: "찬성입니다", pronunciation: "산세이데스", example: "예문: 의견에 동의할 때 사용합니다." },
+      { id: 200, japanese: "反対です", meaning: "반대입니다", pronunciation: "한타이데스", example: "예문: 의견에 반대할 때 사용합니다." },
+
+      { id: 201, japanese: "どうやら", meaning: "어쩐지", pronunciation: "도-야라", example: "예문: 추측할 때 사용합니다." },
+      { id: 202, japanese: "信じられません", meaning: "믿을 수 없습니다", pronunciation: "신지라레마센", example: "예문: 놀라움을 표현할 때 사용합니다." },
+      { id: 203, japanese: "ちょっと信じられない", meaning: "좀 믿어지지 않아요", pronunciation: "촛토 신지라레나이", example: "예문: 의심을 표현할 때 사용합니다." },
+      { id: 204, japanese: "本当にすみません", meaning: "정말 죄송합니다", pronunciation: "혼토니 스미센", example: "예문: 깊은 사과를 할 때 사용합니다." },
+      { id: 205, japanese: "お手数をおかけします", meaning: "수고 끼쳐드려 죄송합니다", pronunciation: "오테스-오 오카케시마스", example: "예문: 번거로움을 끼쳤을 때 사용합니다." },
+      { id: 206, japanese: "よくやった", meaning: "잘했어", pronunciation: "요쿠 야타", example: "예문: 칭찬할 때 사용합니다." },
+      { id: 207, japanese: "気をつけるね", meaning: "조심할게", pronunciation: "키 오 츠케루 네", example: "예문: 주의를 당부할 때 사용합니다." },
+      { id: 208, japanese: "しばらくお待ちください", meaning: "잠시만 기다려 주세요", pronunciation: "시바락 오 맛치 쿠다사이", example: "예문: 잠시 기다림을 요청할 때 사용합니다." },
+      { id: 209, japanese: "どうぞお入りください", meaning: "들어오세요", pronunciation: "도-조 오하이리 쿠다사이", example: "예문: 초대할 때 사용합니다." },
+      { id: 210, japanese: "それは残念ですね", meaning: "그것은 안타깝네요", pronunciation: "소레와 잔넨데스네", example: "예문: 유감스러운 상황을 표현할 때 사용합니다." },
+
+      { id: 211, japanese: "時間がありますか？", meaning: "시간 있으세요?", pronunciation: "지칸가 아리마스카", example: "예문: 시간을 물어볼 때 사용합니다." },
+      { id: 212, japanese: "少し時間があります", meaning: "시간이 좀 있습니다", pronunciation: "스코시 지칸가 아리마스", example: "예문: 여유 시간이 있을 때 사용합니다." },
+      { id: 213, japanese: "急いでいます", meaning: "급합니다", pronunciation: "이소이데이마스", example: "예문: 급한 상황을 표현할 때 사용합니다." },
+      { id: 214, japanese: "ゆっくりしていってください", meaning: "편하게 계세요", pronunciation: "윳쿠리 시테 잇테 쿠다사이", example: "예문: 편안한 체류를 권할 때 사용합니다." },
+      { id: 215, japanese: "ご自由にどうぞ", meaning: "자유롭게 하세요", pronunciation: "고지유-니 도-조", example: "예문: 자유롭게 선택할 때 사용합니다." },
+      { id: 216, japanese: "お帰りなさい", meaning: "어서 오세요", pronunciation: "오카에리나사이", example: "예문: 귀가한 사람에게 인사합니다." },
+      { id: 217, japanese: "ただいま", meaning: "지금 왔습니다", pronunciation: "타다이마", example: "예문: 집에 돌아왔을 때 사용합니다." },
+      { id: 218, japanese: "行ってきます", meaning: "다녀오겠습니다", pronunciation: "잇떼킷마스", example: "예문: 외출할 때 인사합니다." },
+      { id: 219, japanese: "行ってらっしゃい", meaning: "다녀오세요", pronunciation: "잇떼랏샤이", example: "예문: 떠나는 사람에게 인사합니다." },
+      { id: 220, japanese: "今, 忙しいです", meaning: "지금 바쁩니다", pronunciation: "이마, 이소가시이데스", example: "예문: 현재 상태를 표현할 때 사용합니다." },
+
+      { id: 221, japanese: "おっしゃる通りです", meaning: "말씀하신 대로입니다", pronunciation: "오샤루 토오리데스", example: "예문: 상대 의견에 동의할 때 사용합니다." },
+      { id: 222, japanese: "確かに", meaning: "확실히", pronunciation: "타시카니", example: "예문: 확신을 표현할 때 사용합니다." },
+      { id: 223, japanese: "それでどうなりましたか？", meaning: "그래서 어떻게 되었습니까?", pronunciation: "소레데 도- 나리마시타카", example: "예문: 상황의 결과를 물어볼 때 사용합니다." },
+      { id: 224, japanese: "詳しく教えてください", meaning: "자세히 알려주세요", pronunciation: "쿠와시쿠 오시에테 쿠다사이", example: "예문: 상세한 설명을 요청할 때 사용합니다." },
+      { id: 225, japanese: "何か質問はありますか？", meaning: "질문 있으세요?", pronunciation: "나니카 시츠몬 와 아리마스카", example: "예문: 문의사항을 물어볼 때 사용합니다." },
+      { id: 226, japanese: "はい、あります", meaning: "네, 있습니다", pronunciation: "하이, 아리마스", example: "예문: 질문이 있을 때 대답합니다." },
+      { id: 227, japanese: "いい質問ですね", meaning: "좋은 질문이네요", pronunciation: "이이 시츠몬데스네", example: "예문: 질문을 칭찬할 때 사용합니다." },
+      { id: 228, japanese: "お答えします", meaning: "대답하겠습니다", pronunciation: "오코타에 시마스", example: "예문: 질문에 답변할 때 사용합니다." },
+      { id: 229, japanese: "ちょっと考えます", meaning: "잠깐 생각해 보겠습니다", pronunciation: "촛토 칸가에마스", example: "예문: 고민 후 답변할 때 사용합니다." },
+      { id: 230, japanese: "すぐに戻ります", meaning: "곧 돌아오겠습니다", pronunciation: "스구니 모도리마스", example: "예문: 잠시 후 복귀를 알릴 때 사용합니다." },
+
+      { id: 231, japanese: "楽しみにしています", meaning: "기대하고 있습니다", pronunciation: "타노시미니 시테이마스", example: "예문: 기대감을 표현할 때 사용합니다." },
+      { id: 232, japanese: "どんな感じですか？", meaning: "어때요?", pronunciation: "돈나 칸지데스카", example: "예문: 상황을 물어볼 때 사용합니다." },
+      { id: 233, japanese: "その通りですね", meaning: "바로 그렇네요", pronunciation: "소노 토오리데스네", example: "예문: 상대 의견에 동의할 때 사용합니다." },
+      { id: 234, japanese: "素晴らしいですね", meaning: "훌륭하네요", pronunciation: "스바라시이데스네", example: "예문: 감탄을 표현할 때 사용합니다." },
+      { id: 235, japanese: "とても良い", meaning: "매우 좋습니다", pronunciation: "토테모 이이", example: "예문: 칭찬할 때 사용합니다." },
+      { id: 236, japanese: "少し悪いです", meaning: "조금 나쁩니다", pronunciation: "스코시 와루이데스", example: "예문: 부정적인 상태를 표현할 때 사용합니다." },
+      { id: 237, japanese: "すごく楽しいです", meaning: "정말 즐겁습니다", pronunciation: "스고쿠 타노시이데스", example: "예문: 즐거움을 표현할 때 사용합니다." },
+      { id: 238, japanese: "驚きました", meaning: "놀랐습니다", pronunciation: "오도로키마시타", example: "예문: 놀라움을 표현할 때 사용합니다." },
+      { id: 239, japanese: "びっくりしました", meaning: "깜짝 놀랐습니다", pronunciation: "빡쿠리마시타", example: "예문: 깜짝 놀랐을 때 사용합니다." },
+      { id: 240, japanese: "感動しました", meaning: "감동했습니다", pronunciation: "칸도-시마시타", example: "예문: 감동을 표현할 때 사용합니다." },
+
+      { id: 241, japanese: "お腹が痛いです", meaning: "배가 아픕니다", pronunciation: "오나카가 아타이데스", example: "예문: 신체 상태를 표현할 때 사용합니다." },
+      { id: 242, japanese: "頭が痛いです", meaning: "머리가 아픕니다", pronunciation: "아타마가 아타이데스", example: "예문: 두통을 표현할 때 사용합니다." },
+      { id: 243, japanese: "具合が悪いです", meaning: "몸 상태가 좋지 않습니다", pronunciation: "구아이가 와루이데스", example: "예문: 건강 상태를 표현할 때 사용합니다." },
+      { id: 244, japanese: "少し休んでください", meaning: "잠깐 쉬세요", pronunciation: "스코시 야스-ん데 쿠다사이", example: "예문: 휴식을 권할 때 사용합니다." },
+      { id: 245, japanese: "お大事にしてください", meaning: "몸조심하세요", pronunciation: "오다이지니 시테 쿠다사이", example: "예문: 건강을 기원할 때 사용합니다." },
+      { id: 246, japanese: "元気になってください", meaning: "빨리 나으세요", pronunciation: "겐키 니 낫떼 쿠다사이", example: "예문: 쾌유를 바랄 때 사용합니다." },
+      { id: 247, japanese: "ゆっくり休んでください", meaning: "천천히 쉬세요", pronunciation: "윳쿠리 야스-ん데 쿠다사이", example: "예문: 충분한 휴식을 권할 때 사용합니다." },
+      { id: 248, japanese: "何かお手伝いしましょうか？", meaning: "뭔가 도와드릴까요?", pronunciation: "나니카 오테츠다이 시마쇼-카", example: "예문: 도움을 제안할 때 사용합니다." },
+      { id: 249, japanese: "私に任せてください", meaning: "저에게 맡겨주세요", pronunciation: "와타시니 마카세테 쿠다사이", example: "예문: 일을 맡기고 싶을 때 사용합니다." },
+      { id: 250, japanese: "あなたが正しいです", meaning: "당신이 옳습니다", pronunciation: "아나타가 타다시이데스", example: "예문: 상대 의견을 지지할 때 사용합니다." },
+
+      { id: 251, japanese: "お気をつけください", meaning: "조심하세요", pronunciation: "오키 오 츠케 쿠다사이", example: "예문: 주의를 당부할 때 사용합니다." },
+      { id: 252, japanese: "少々お待ちください", meaning: "잠시만 기다려 주세요", pronunciation: "쇼쇼 오 맛치 쿠다사이", example: "예문: 잠깐의 대기를 요청할 때 사용합니다." },
+      { id: 253, japanese: "ごゆっくりどうぞ", meaning: "천천히 즐기세요", pronunciation: "고윳쿠리 도-조", example: "예문: 여유롭게 즐기라는 의미로 사용합니다." },
+      { id: 254, japanese: "絶対に", meaning: "절대로", pronunciation: "젠타이니", example: "예문: 강한 부정을 표현할 때 사용합니다." },
+      { id: 255, japanese: "何も問題ありません", meaning: "아무 문제 없습니다", pronunciation: "나니모 몬다이 아리마센", example: "예문: 문제 없음을 확인할 때 사용합니다." },
+      { id: 256, japanese: "失敗しないでください", meaning: "실수하지 마세요", pronunciation: "시っぱい 시나이데 쿠다사이", example: "예문: 주의를 당부할 때 사용합니다." },
+      { id: 257, japanese: "気に入ってください", meaning: "마음에 드세요", pronunciation: "키니잇떼 쿠다사이", example: "예문: 호감을 표현할 때 사용합니다." },
+      { id: 258, japanese: "そんなに高くないです", meaning: "그렇게 비싸지 않습니다", pronunciation: "손나니 타카쿠 나이데스", example: "예문: 가격이 높지 않음을 표현할 때 사용합니다." },
+      { id: 259, japanese: "これが一番です", meaning: "이게 제일입니다", pronunciation: "코레가 잇판데스", example: "예문: 최고임을 표현할 때 사용합니다." },
+      { id: 260, japanese: "ここが好きです", meaning: "여기 좋아합니다", pronunciation: "코코가 스키데스", example: "예문: 장소에 대한 선호를 표현할 때 사용합니다." },
+
+      { id: 261, japanese: "あちらはどうですか？", meaning: "저쪽은 어떠세요?", pronunciation: "아치라와 도-데스카", example: "예문: 다른 쪽을 물어볼 때 사용합니다." },
+      { id: 262, japanese: "ここは静かです", meaning: "여기 조용합니다", pronunciation: "코코와 시즈카데스", example: "예문: 환경이 조용함을 표현할 때 사용합니다." },
+      { id: 263, japanese: "あそこは賑やかです", meaning: "저기는 번화합니다", pronunciation: "아소코와 니기야카데스", example: "예문: 분위기가 활기참을 표현할 때 사용합니다." },
+      { id: 264, japanese: "この辺は安全です", meaning: "이 근처는 안전합니다", pronunciation: "코노 헨와 안젠데스", example: "예문: 지역의 안전함을 표현할 때 사용합니다." },
+      { id: 265, japanese: "ここはとても便利です", meaning: "여기는 매우 편리합니다", pronunciation: "코코와 토테모 벤리데스", example: "예문: 위치나 시설이 편리함을 표현할 때 사용합니다." },
+      { id: 266, japanese: "大変助かりました", meaning: "정말 큰 도움이 되었습니다", pronunciation: "타이헨 타스카리마시타", example: "예문: 도움에 감사할 때 사용합니다." },
+      { id: 267, japanese: "ご苦労様です", meaning: "수고 많으셨습니다", pronunciation: "고쿠료-사마데스", example: "예문: 업무 후 감사의 뜻으로 사용합니다." },
+      { id: 268, japanese: "どうぞお楽しみください", meaning: "즐기시길 바랍니다", pronunciation: "도-조 오타노시미 쿠다사이", example: "예문: 즐거움을 기원할 때 사용합니다." },
+      { id: 269, japanese: "またお会いしましょう", meaning: "또 뵙겠습니다", pronunciation: "마타 오아이시마쇼-", example: "예문: 작별 후 재회를 약속할 때 사용합니다." },
+      { id: 270, japanese: "ご連絡お待ちしております", meaning: "연락 기다리겠습니다", pronunciation: "고렌라쿠 오 맛치 시테 오리마스", example: "예문: 후속 연락을 약속할 때 사용합니다." },
+
+      { id: 271, japanese: "どうぞよろしく", meaning: "잘 부탁드립니다", pronunciation: "도-조 요로시쿠", example: "예문: 인사나 부탁 시 사용합니다." },
+      { id: 272, japanese: "お気に召しますか？", meaning: "마음에 드시나요?", pronunciation: "오키니 메시마스카", example: "예문: 취향이나 선호를 물어볼 때 사용합니다." },
+      { id: 273, japanese: "満足ですか？", meaning: "만족하십니까?", pronunciation: "만조쿠데스카", example: "예문: 만족도를 물어볼 때 사용합니다." },
+      { id: 274, japanese: "楽しかったです", meaning: "즐거웠습니다", pronunciation: "타노시캇타데스", example: "예문: 경험에 대해 이야기할 때 사용합니다." },
+      { id: 275, japanese: "とても面白いです", meaning: "매우 재미있습니다", pronunciation: "토테모 오모시로이데스", example: "예문: 흥미로운 상황을 표현할 때 사용합니다." },
+      { id: 276, japanese: "素敵です", meaning: "멋집니다", pronunciation: "스테키데스", example: "예문: 칭찬할 때 사용합니다." },
+      { id: 277, japanese: "気持ちいいです", meaning: "기분 좋습니다", pronunciation: "키모치 이이데스", example: "예문: 쾌적함을 표현할 때 사용합니다." },
+      { id: 278, japanese: "気分が悪いです", meaning: "기분이 안 좋습니다", pronunciation: "키분가 와루이데스", example: "예문: 불편함을 표현할 때 사용합니다." },
+      { id: 279, japanese: "これは何ですか？", meaning: "이것은 무엇입니까?", pronunciation: "코레와 난데스카", example: "예문: 사물을 물어볼 때 사용합니다." },
+      { id: 280, japanese: "それは面白いです", meaning: "그것은 재미있습니다", pronunciation: "소레와 오모시로이데스", example: "예문: 어떤 것을 칭찬할 때 사용합니다." },
+
+      { id: 281, japanese: "何か良い案はありますか？", meaning: "좋은 아이디어가 있습니까?", pronunciation: "나니카 이이 안 와 아리마스카", example: "예문: 제안을 요청할 때 사용합니다." },
+      { id: 282, japanese: "この方法はどうですか？", meaning: "이 방법은 어떻습니까?", pronunciation: "코노 호-호-와 도-데스카", example: "예문: 의견을 물어볼 때 사용합니다." },
+      { id: 283, japanese: "やってみましょう", meaning: "한번 해봅시다", pronunciation: "얏떼 밈마쇼-", example: "예문: 시도를 제안할 때 사용합니다." },
+      { id: 284, japanese: "いいアイデアですね", meaning: "좋은 아이디어네요", pronunciation: "이이 아이데-아 데스네", example: "예문: 상대의 아이디어에 동의할 때 사용합니다." },
+      { id: 285, japanese: "どうしてそう思うのですか？", meaning: "왜 그렇게 생각합니까?", pronunciation: "도-시떼 소- 오모우노데스카", example: "예문: 이유를 물어볼 때 사용합니다." },
+      { id: 286, japanese: "それは大切です", meaning: "그것은 중요합니다", pronunciation: "소레와 타이세츠데스", example: "예문: 중요함을 강조할 때 사용합니다." },
+      { id: 287, japanese: "絶対に必要です", meaning: "절대적으로 필요합니다", pronunciation: "젠타이니 츠-요-데스", example: "예문: 필수임을 강조할 때 사용합니다." },
+      { id: 288, japanese: "可能ですか？", meaning: "가능합니까?", pronunciation: "카노-데스카", example: "예문: 가능 여부를 물어볼 때 사용합니다." },
+      { id: 289, japanese: "無理です", meaning: "불가능합니다", pronunciation: "무리데스", example: "예문: 불가능함을 표현할 때 사용합니다." },
+      { id: 290, japanese: "ちょっと難しいです", meaning: "약간 어렵습니다", pronunciation: "촛토 무즈카시이데스", example: "예문: 난이도를 표현할 때 사용합니다." },
+
+      { id: 291, japanese: "もう少し考えます", meaning: "조금 더 생각해 보겠습니다", pronunciation: "모-우스코시 칸가에마스", example: "예문: 결정을 미루거나 고민할 때 사용합니다." },
+      { id: 292, japanese: "時間がかかります", meaning: "시간이 걸립니다", pronunciation: "지칸가 카카리마스", example: "예문: 소요 시간을 설명할 때 사용합니다." },
+      { id: 293, japanese: "どうしましょうか？", meaning: "어떻게 할까요?", pronunciation: "도-시마쇼-카", example: "예문: 해결책을 모색할 때 사용합니다." },
+      { id: 294, japanese: "それで決まりですね", meaning: "그걸로 결정하죠", pronunciation: "소레데 키마리데스네", example: "예문: 결정을 확정할 때 사용합니다." },
+      { id: 295, japanese: "必要なものは何ですか？", meaning: "필요한 것은 무엇입니까?", pronunciation: "츠-요-나 모노 와 난데스카", example: "예문: 필요한 물품을 물어볼 때 사용합니다." },
+      { id: 296, japanese: "これはどう使いますか？", meaning: "이것은 어떻게 사용합니까?", pronunciation: "코레와 도-우 츠카이마스카", example: "예문: 사용법을 물어볼 때 사용합니다." },
+      { id: 297, japanese: "安全にしてください", meaning: "안전하게 해주세요", pronunciation: "안젠 니 시테 쿠다사이", example: "예문: 안전 조치를 요청할 때 사용합니다." },
+      { id: 298, japanese: "ゆっくりと", meaning: "천천히", pronunciation: "윳쿠리토", example: "예문: 속도를 낮출 때 사용합니다." },
+      { id: 299, japanese: "すぐ終わります", meaning: "곧 끝납니다", pronunciation: "스구 오와리마스", example: "예문: 작업 종료를 알릴 때 사용합니다." },
+      { id: 300, japanese: "お会いできて嬉しいです", meaning: "뵙게 되어 기쁩니다", pronunciation: "오아이 데키테 우레시이데스", example: "예문: 만남의 기쁨을 표현할 때 사용합니다." }
+    ];
+    
+    // 전역 변수
+    var currentDay = 0;
+    var currentExpressions = [];
+    var studyIndex = 0;
+    var quizIndex = 0;
+    var score = 0;
+    
+    // 첫 화면: 일차 선택
+    function renderDaySelection() {
+      var container = document.getElementById("container");
+      var html = "<h1>일본어 회화 학습 프로그램</h1>";
+      html += "<p>학습할 일차를 선택하세요:</p>";
+      html += "<select id='daySelect'>";
+      for (var i = 1; i <= 30; i++) {
+        html += "<option value='" + i + "'>" + i + "일차</option>";
+      }
+      html += "</select>";
+      html += "<br><button class='button' onclick='startDay()'>선택</button>";
+      container.innerHTML = html;
+    }
+    
+    // 일차 선택 후 해당 일차의 10개 표현 로딩 및 학습 모드 시작
+    function startDay() {
+      var day = parseInt(document.getElementById("daySelect").value);
+      currentDay = day;
+      // 1일차: 인덱스 0~9, 2일차: 10~19, ... 30일차: 290~299
+      currentExpressions = expressions.slice((day - 1) * 10, day * 10);
+      studyIndex = 0;
+      renderStudyExpression();
+    }
+    
+    // 학습 모드: 한 문장씩 표현을 보여주기
+    function renderStudyExpression() {
+      var container = document.getElementById("container");
+      if (studyIndex < currentExpressions.length) {
+        var expr = currentExpressions[studyIndex];
+        var html = "<h2>" + currentDay + "일차 학습 (" + (studyIndex + 1) + " / " + currentExpressions.length + ")</h2>";
+        html += "<div class='expression'>";
+        html += "<p><strong>일본어:</strong> " + expr.japanese + " (" + expr.pronunciation + ")</p>";
+        html += "<p><strong>뜻:</strong> " + expr.meaning + "</p>";
+        html += "<p><strong>예문:</strong> " + expr.example + "</p>";
+        html += "</div>";
+        // 마지막 표현이 아니면 "다음" 버튼, 마지막이면 "퀴즈 시작" 버튼 표시
+        if (studyIndex < currentExpressions.length - 1) {
+          html += "<button class='button' onclick='nextExpression()'>다음</button>";
+        } else {
+          html += "<button class='button' onclick='startQuiz()'>퀴즈 시작</button>";
+        }
+        container.innerHTML = html;
+      }
+    }
+    
+    function nextExpression() {
+      studyIndex++;
+      renderStudyExpression();
+    }
+    
+    // 퀴즈 모드 시작 (표현 10개에 대해 퀴즈)
+    function startQuiz() {
+      quizIndex = 0;
+      score = 0;
+      renderQuizQuestion();
+    }
+    
+    // 퀴즈 문제 출력: 해당 표현의 뜻을 제시하고 4지 선다 객관식 (정답 + 3개 오답)
+    function renderQuizQuestion() {
+      var container = document.getElementById("container");
+      if (quizIndex >= currentExpressions.length) {
+        renderResult();
+        return;
+      }
+      var currentExpr = currentExpressions[quizIndex];
+      var html = "<h2>퀴즈 " + (quizIndex + 1) + " / " + currentExpressions.length + "</h2>";
+      html += "<p><strong>뜻:</strong> " + currentExpr.meaning + "</p>";
+      // 옵션 생성: 정답 + 무작위 오답 3개
+      var options = [];
+      options.push(currentExpr);
+      while(options.length < 4) {
+        var randIndex = Math.floor(Math.random() * expressions.length);
+        var candidate = expressions[randIndex];
+        if (!options.some(function(opt){ return opt.japanese === candidate.japanese; })) {
+          options.push(candidate);
+        }
+      }
+      // 옵션 섞기
+      options.sort(function(){ return 0.5 - Math.random(); });
+      
+      html += "<form id='quizForm'>";
+      options.forEach(function(opt, index) {
+        html += "<div class='option'><input type='radio' name='option' value='" + opt.japanese + "' id='option" + index + "'>";
+        html += "<label for='option" + index + "'>" + opt.japanese + " (" + opt.pronunciation + ")</label></div>";
+      });
+      html += "</form>";
+      html += "<button class='button' onclick='checkAnswer()'>정답 제출</button>";
+      container.innerHTML = html;
+    }
+    
+    function checkAnswer() {
+      var form = document.getElementById("quizForm");
+      var options = form.elements["option"];
+      var selected = null;
+      for(var i = 0; i < options.length; i++){
+        if(options[i].checked){
+          selected = options[i].value;
+          break;
+        }
+      }
+      if(selected === null){
+        alert("옵션을 선택하세요.");
+        return;
+      }
+      var correctAnswer = currentExpressions[quizIndex].japanese;
+      if(selected === correctAnswer){
+        score += 10;
+      }
+      quizIndex++;
+      renderQuizQuestion();
+    }
+    
+    function renderResult() {
+      var container = document.getElementById("container");
+      var html = "<h2>퀴즈 결과</h2>";
+      html += "<p>최종 점수: " + score + "점</p>";
+      html += "<button class='button' onclick='renderDaySelection()'>처음으로</button>";
+      container.innerHTML = html;
+    }
+    
+    window.onload = function() {
+      renderDaySelection();
+    };
+  </script>
+</body>
+</html>
